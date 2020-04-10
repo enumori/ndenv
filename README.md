@@ -3,7 +3,6 @@ Simple Node.JS version management
 
 # Installation
 powershellを起動して以下のコマンドを入力します。
-※powershellは6以上を使用します。（https://github.com/PowerShell/PowerShell#-powershell)
 ```
 Set-ExecutionPolicy RemoteSigned -scope Process
 Invoke-WebRequest -Uri "https://github.com/enumori/ndenv/releases/download/2020.4.10/ndenv.zip" -OutFile .\ndenv.zip
@@ -14,7 +13,7 @@ $path = [Environment]::GetEnvironmentVariable("PATH", "User")
 $path = "$env:USERPROFILE\.ndenv;" + $path
 [Environment]::SetEnvironmentVariable("PATH", $path, "User")
 ```
-powershellを再起動するとndenvが使用できます。
+powershellやコマンドプロンプトを起動するとndenvが使用できます。
 
 # Command Reference
 | 実行内容 | コマンド|
