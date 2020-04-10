@@ -13,6 +13,7 @@ $path = [Environment]::GetEnvironmentVariable("PATH", "User")
 $path = "$env:USERPROFILE\.ndenv;" + $path
 [Environment]::SetEnvironmentVariable("PATH", $path, "User")
 ```
+powershellを再起動するとndenvが使用できます。
 
 # Command Reference
 | 実行内容 | コマンド|
