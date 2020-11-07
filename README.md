@@ -18,7 +18,7 @@ powershellやコマンドプロンプトを起動するとndenvが使用でき�
 # Command Reference
 | 実行内容 | コマンド|
 | --- | --- |
-| インストール可能なPythonバージョンのリスト | ndenv install --list |
+| インストール可能なNode.JSバージョンのリスト | ndenv install --list |
 | インストール | ndenv install バージョン |
 | インストール済みバージョンのリスト | ndenv versions |
 | 全体のバージョンの切り替え | ndenv global バージョン |
