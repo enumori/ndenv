@@ -1,4 +1,4 @@
-﻿
+
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -35,7 +35,7 @@ namespace ndenv
         }
 
 
-        [Verb("--version", HelpText = "nodeenvのバージョンを出力します。")]
+        [Verb("--version", HelpText = "ndenvのバージョンを出力します。")]
         public class ShowVersion
         {
         }
