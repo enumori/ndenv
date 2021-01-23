@@ -78,10 +78,7 @@ namespace ndenv
             [CommandLine.Value(0, MetaName = "Version", HelpText = "使用するバージョン")]
             public string Version { get; set; }
         }
-        [Verb("rehash", HelpText = "設定を反映する。")]
-        public class Rehash
-        {
-        }
+
         static void Main(string[] args)
         {
             ErrorCode error_code = ErrorCode.INVALID_ARGS;
@@ -91,7 +88,7 @@ namespace ndenv
             //var parser = new Parser(config => { config.IgnoreUnknownArguments = false; config.HelpWriter = Console.Out; });
 
             var parser = new Parser(config => { config.IgnoreUnknownArguments = false; config.AutoVersion = false; config.HelpWriter = Console.Out; });
-            var result = parser.ParseArguments<ShowVersion, Install, Uninstall, Version, Versions, Global, Local, Rehash>(args)
+            var result = parser.ParseArguments<ShowVersion, Install, Uninstall, Version, Versions, Global, Local>(args)
                 .WithParsed<ShowVersion>(opts => {
                     error_code = ProcShowVersion(opts);
                 })
@@ -113,9 +110,6 @@ namespace ndenv
                 .WithParsed<Local>(opts => {
                     error_code = ProcLocal(opts);
                 })
-                .WithParsed<Rehash>(opts => {
-                    error_code = ProcRehash(opts);
-                })
                 .WithNotParsed(errs => {
                     error_code = ErrorCode.WITH_NOT_PARSED;
                 });
@@ -123,7 +117,7 @@ namespace ndenv
 
             if (error_code == ErrorCode.INVALID_ARGS)
             {
-                parser.ParseArguments<ShowVersion, Install, Version, Versions, Global, Local, Rehash>(new string[] { "" });
+                parser.ParseArguments<ShowVersion, Install, Version, Versions, Global, Local>(new string[] { "" });
             }
 
 #if DEBUG
@@ -146,8 +140,8 @@ namespace ndenv
             ErrorCode ret_code = ErrorCode.NO_ERROR;
             int num_opts = 0;
             System.Diagnostics.Debug.WriteLine("ProcInstall");
-            System.Diagnostics.Debug.WriteLine("opt.List" + opt.IsList);
-            System.Diagnostics.Debug.WriteLine("opt.Version" + opt.Version);
+            System.Diagnostics.Debug.WriteLine("opt.List:" + opt.IsList);
+            System.Diagnostics.Debug.WriteLine("opt.Version:" + opt.Version);
             
             string Regex_LTS = "^" + Properties.Settings.Default.LTSVersion; 
             
@@ -362,13 +356,6 @@ namespace ndenv
                 System.Console.Error.WriteLine("指定されたバージョンはインストールされていません。");
                 ret_code = ErrorCode.INVALID_ARGS;
             }
-            return ret_code;
-        }
-        static ErrorCode ProcRehash(Program.Rehash opt)
-        {
-            ErrorCode ret_code = ErrorCode.NO_ERROR;
-
-
             return ret_code;
         }
         static ErrorCode ShowList()
