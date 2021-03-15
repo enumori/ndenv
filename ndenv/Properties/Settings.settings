@@ -3,7 +3,7 @@
   <Profiles />
   <Settings>
     <Setting Name="LTSVersion" Type="System.String" Scope="User">
-      <Value Profile="(Default)">v12</Value>
+      <Value Profile="(Default)">v14</Value>
     </Setting>
   </Settings>
 </SettingsFile>
