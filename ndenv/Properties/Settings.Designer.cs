@@ -34,5 +34,53 @@ namespace ndenv.Properties {
                 this["LTSVersion"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("https://nodejs.org/download/release")]
+        public string NodeJsURL {
+            get {
+                return ((string)(this["NodeJsURL"]));
+            }
+            set {
+                this["NodeJsURL"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("v6.0.0")]
+        public string OldestVersion {
+            get {
+                return ((string)(this["OldestVersion"]));
+            }
+            set {
+                this["OldestVersion"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("{0}/{1}/node-{1}-win-x86.zip")]
+        public string Win32URL {
+            get {
+                return ((string)(this["Win32URL"]));
+            }
+            set {
+                this["Win32URL"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("{0}/{1}/node-{1}-win-x64.zip")]
+        public string Win64URL {
+            get {
+                return ((string)(this["Win64URL"]));
+            }
+            set {
+                this["Win64URL"] = value;
+            }
+        }
     }
 }

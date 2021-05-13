@@ -18,9 +18,6 @@ namespace ndenv
 {
     public class Program
     {
-        static readonly string _NodeJsURL = @"https://nodejs.org/download/release/";
-        static readonly string _NpmURL = @"http://nodejs.org/dist/npm/";
-        static readonly string _NpmName = @"npm-1.4.9.zip";
         static readonly string _VersionFile = @".node-version";
 
         static List<string> _VersionList = new List<string>();
@@ -386,7 +383,7 @@ namespace ndenv
             {
                 return ret_code;
             }
-            if ((ret_code = DownloadNpm(version)) != ErrorCode.NO_ERROR)
+            if ((ret_code = SetupNpm(version)) != ErrorCode.NO_ERROR)
             {
                 return ret_code;
             }
@@ -396,7 +393,7 @@ namespace ndenv
         static void GetList()
         {
             string source = "";
-            System.Net.HttpWebRequest webreq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(_NodeJsURL);
+            System.Net.HttpWebRequest webreq = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(Properties.Settings.Default.NodeJsURL);
             using (System.Net.HttpWebResponse webres = (System.Net.HttpWebResponse)webreq.GetResponse())
             {
                 using (System.IO.Stream st = webres.GetResponseStream())
@@ -421,7 +418,11 @@ namespace ndenv
                     {
                         if (m.Value == link.InnerHtml)
                         {
-                            _VersionList.Add(m.Value.TrimEnd('/'));
+                            var dir = m.Value.TrimEnd('/');
+                            if (string.Compare(Version2String(dir), Version2String(Properties.Settings.Default.OldestVersion)) >= 0)
+                            {
+                                _VersionList.Add(dir);
+                            }
                         }
                         m = m.NextMatch();
                     }
@@ -448,37 +449,39 @@ namespace ndenv
             ErrorCode ret_code = ErrorCode.NO_ERROR;
 
             string dir = System.IO.Path.Combine(_NodeDir, version);
-            string node = System.IO.Path.Combine(dir, "node.exe");
-
-            if (!System.IO.Directory.Exists(dir))
+            string download = System.IO.Path.Combine(_NodeDir, "node.zip");
+            if (!System.IO.Directory.Exists(_NodeDir))
             {
-                System.Diagnostics.Debug.WriteLine("ディレクトリ作成: " + dir);
-                System.IO.Directory.CreateDirectory(dir);
+                System.IO.Directory.CreateDirectory(_NodeDir);
             }
-            if (!System.IO.File.Exists(node))
+            if (!System.IO.Directory.Exists(dir))
             {
                 System.Console.WriteLine("node(" + version + ")をインストール中");
                 string url = "";
                 if (Environment.Is64BitOperatingSystem)
                 {
-                    url = _NodeJsURL + URLVersion(version) + "win-x64/node.exe";
+                    url = string.Format(Properties.Settings.Default.Win64URL, Properties.Settings.Default.NodeJsURL, version);
                 }
                 else
                 {
-                    url = _NodeJsURL + URLVersion(version) + "win-x86/node.exe";
+                    url = string.Format(Properties.Settings.Default.Win32URL, Properties.Settings.Default.NodeJsURL, version);
                 }
                 System.Net.WebClient wc = new System.Net.WebClient();
-                System.Diagnostics.Debug.WriteLine("ダウンロード: " + url + " -> " + node);
-                wc.DownloadFile(url, node);
+                System.Diagnostics.Debug.WriteLine("ダウンロード: " + url + " -> " + download);
+                wc.DownloadFile(url, download);
                 wc.Dispose();
+                var node_dir = ExtractToDirectoryExtensions(download, _NodeDir, true);
+                node_dir = System.IO.Path.Combine(_NodeDir, node_dir);
+                System.IO.File.Delete(download);
+                System.IO.Directory.Move(node_dir, dir);
             }
             return ret_code;
         }
-        static ErrorCode DownloadNpm(string version)
+
+        static ErrorCode SetupNpm(string version)
         {
             ErrorCode ret_code = ErrorCode.NO_ERROR;
             string dir = System.IO.Path.Combine(_NodeDir, version);
-            var download = System.IO.Path.Combine(dir, _NpmName);
             var npm = System.IO.Path.Combine(dir, "npm.cmd");
             var yarn = System.IO.Path.Combine(dir, "yarn.cmd");
 
@@ -492,86 +495,64 @@ namespace ndenv
                 System.Diagnostics.Debug.WriteLine("ディレクトリ作成: " + dir);
                 System.IO.Directory.CreateDirectory(dir);
             }
-            if (!System.IO.File.Exists(npm))
-            {
-                System.Console.WriteLine("パッケージ管理ツールをインストールします。");
-                System.Console.WriteLine("npmのインストール中");
-                System.Net.WebClient wc = new System.Net.WebClient();
-                wc.DownloadFile(System.IO.Path.Combine(_NpmURL, _NpmName), download);
-                wc.Dispose();
+            System.Console.WriteLine("パッケージ管理ツールを設定します。");
+            System.Console.WriteLine("npmの設定中");
 
-                ExtractToDirectoryExtensions(download, dir, true);
-                System.IO.File.Delete(download);
-
-                Process p;
-
-                p = new Process();
-                p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.CreateNoWindow = true;
-                p.StartInfo.WorkingDirectory = dir;
-                p.StartInfo.Arguments = string.Format("/c \"\"{0}\" config set cache {1}", npm, "\"" + cache_dir + "\"\"");
-                p.Start();
-                p.WaitForExit();
-                p.Close();
+            Process p;
+            p = new Process();
+            p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.WorkingDirectory = dir;
+            p.StartInfo.Arguments = string.Format("/c \"\"{0}\" config set cache {1}", npm, "\"" + cache_dir + "\"\"");
+            p.Start();
+            p.WaitForExit();
+            p.Close();
                 
-                System.Console.WriteLine("yarnのインストール中");
-                p = new Process();
-                p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.CreateNoWindow = true;
-                p.StartInfo.WorkingDirectory = dir;
-                p.StartInfo.Arguments = string.Format("/c \"\"{0}\" install -g yarn\"", npm);
-                p.Start();
-                p.WaitForExit();
-                p.Close();
+            System.Console.WriteLine("yarnのインストール中");
+            p = new Process();
+            p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.WorkingDirectory = dir;
+            p.StartInfo.Arguments = string.Format("/c \"\"{0}\" install -g yarn\"", npm);
+            p.Start();
+            p.WaitForExit();
+            p.Close();
 
-                cache_dir = System.IO.Path.Combine(_AppDir, "yarn-cache");
-                p = new Process();
-                p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.CreateNoWindow = true;
-                p.StartInfo.WorkingDirectory = dir;
-                p.StartInfo.Arguments = string.Format("/c \"\"{0}\" config set cache-folder {1}", yarn, "\"" + cache_dir + "\"\"");
-                p.Start();
-                p.WaitForExit();
-                p.Close();
-
-                System.Console.WriteLine("npxのインストール中");
-                p = new Process();
-                p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
-                p.StartInfo.UseShellExecute = false;
-                p.StartInfo.CreateNoWindow = true;
-                p.StartInfo.WorkingDirectory = dir;
-                p.StartInfo.Arguments = string.Format("/c \"\"{0}\" install -g npx\"", npm);
-                p.Start();
-                p.WaitForExit();
-                p.Close();
-            }
             cache_dir = System.IO.Path.Combine(_AppDir, "yarn-cache");
             if (!System.IO.Directory.Exists(cache_dir))
             {
                 System.IO.Directory.CreateDirectory(cache_dir);
             }
+            p = new Process();
+            p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.WorkingDirectory = dir;
+            p.StartInfo.Arguments = string.Format("/c \"\"{0}\" config set cache-folder {1}", yarn, "\"" + cache_dir + "\"\"");
+            p.Start();
+            p.WaitForExit();
+            p.Close();
+
             return ret_code;
         }
 
-        static string URLVersion(string version)
+        static string ExtractToDirectoryExtensions(string sourceArchiveFileName, string destinationDirectoryName, bool overwrite)
         {
-            if (!version.EndsWith("/"))
-            {
-                return version + "/";
-            }
-            return version;
-        }
-
-        static void ExtractToDirectoryExtensions(string sourceArchiveFileName, string destinationDirectoryName, bool overwrite)
-        {
+            string top_name = "";
             using (ZipArchive archive = ZipFile.OpenRead(sourceArchiveFileName))
             {
+                top_name = System.IO.Directory.GetParent(archive.Entries[0].FullName).FullName.Split('\\').Last();
                 foreach (ZipArchiveEntry entry in archive.Entries)
                 {
-                    var fullPath = System.IO.Path.Combine(destinationDirectoryName, entry.FullName);
+                    var fullPath = System.IO.Path.Combine(destinationDirectoryName, entry.FullName).Replace('/', '\\');
+
+                    var parent = System.IO.Directory.GetParent(fullPath).FullName;
+                    if (!System.IO.Directory.Exists(parent))
+                    {
+                        System.IO.Directory.CreateDirectory(parent);
+                    }
                     if (string.IsNullOrEmpty(entry.Name))
                     {
                         if (!System.IO.Directory.Exists(fullPath))
@@ -595,6 +576,7 @@ namespace ndenv
                     }
                 }
             }
+            return top_name;
         }
 
         static bool ConsoleQuestion(string question)

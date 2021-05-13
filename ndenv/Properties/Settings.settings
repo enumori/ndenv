@@ -5,5 +5,17 @@
     <Setting Name="LTSVersion" Type="System.String" Scope="User">
       <Value Profile="(Default)">v14</Value>
     </Setting>
+    <Setting Name="NodeJsURL" Type="System.String" Scope="User">
+      <Value Profile="(Default)">https://nodejs.org/download/release</Value>
+    </Setting>
+    <Setting Name="OldestVersion" Type="System.String" Scope="User">
+      <Value Profile="(Default)">v6.0.0</Value>
+    </Setting>
+    <Setting Name="Win32URL" Type="System.String" Scope="User">
+      <Value Profile="(Default)">{0}/{1}/node-{1}-win-x86.zip</Value>
+    </Setting>
+    <Setting Name="Win64URL" Type="System.String" Scope="User">
+      <Value Profile="(Default)">{0}/{1}/node-{1}-win-x64.zip</Value>
+    </Setting>
   </Settings>
 </SettingsFile>
