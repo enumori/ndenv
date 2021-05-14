@@ -482,40 +482,55 @@ namespace ndenv
         {
             ErrorCode ret_code = ErrorCode.NO_ERROR;
             string dir = System.IO.Path.Combine(_NodeDir, version);
-            var npm = System.IO.Path.Combine(dir, "npm.cmd");
-            var yarn = System.IO.Path.Combine(dir, "yarn.cmd");
+            var npm = System.IO.Path.Combine(dir, "npm");
+            var yarn = System.IO.Path.Combine(dir, "yarn");
+            var pnpm = System.IO.Path.Combine(dir, "pnpm");
 
+            if (!System.IO.Directory.Exists(dir))
+            {
+                return ErrorCode.INVALID_ARGS;
+            }
+
+            System.Console.WriteLine("パッケージ管理ツールを設定します。");
+
+            Process p;
+            string args;
+            System.Console.WriteLine("npmの設定中");
             string cache_dir = System.IO.Path.Combine(_AppDir, "npm-cache");
             if (!System.IO.Directory.Exists(cache_dir))
             {
                 System.IO.Directory.CreateDirectory(cache_dir);
             }
-            if (!System.IO.Directory.Exists(dir))
-            {
-                System.Diagnostics.Debug.WriteLine("ディレクトリ作成: " + dir);
-                System.IO.Directory.CreateDirectory(dir);
-            }
-            System.Console.WriteLine("パッケージ管理ツールを設定します。");
-            System.Console.WriteLine("npmの設定中");
-
-            Process p;
             p = new Process();
             p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.WorkingDirectory = dir;
-            p.StartInfo.Arguments = string.Format("/c \"\"{0}\" config set cache {1}", npm, "\"" + cache_dir + "\"\"");
+            args = string.Format("\"{0}\" config set cache \"{1}\"", npm, cache_dir);
+            p.StartInfo.Arguments = string.Format("/c \"{0}\"", args);
             p.Start();
             p.WaitForExit();
             p.Close();
-                
+
+            p = new Process();
+            p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.WorkingDirectory = dir;
+            args = string.Format("\"{0}\" config set scripts-prepend-node-path true", npm);
+            p.StartInfo.Arguments = string.Format("/c \"{0}\"", args);
+            p.Start();
+            p.WaitForExit();
+            p.Close();
+
             System.Console.WriteLine("yarnのインストール中");
             p = new Process();
             p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.WorkingDirectory = dir;
-            p.StartInfo.Arguments = string.Format("/c \"\"{0}\" install -g yarn\"", npm);
+            args = string.Format("\"{0}\" install -g yarn", npm);
+            p.StartInfo.Arguments = string.Format("/c \"{0}\"", args);
             p.Start();
             p.WaitForExit();
             p.Close();
@@ -530,7 +545,47 @@ namespace ndenv
             p.StartInfo.UseShellExecute = false;
             p.StartInfo.CreateNoWindow = true;
             p.StartInfo.WorkingDirectory = dir;
-            p.StartInfo.Arguments = string.Format("/c \"\"{0}\" config set cache-folder {1}", yarn, "\"" + cache_dir + "\"\"");
+            args = string.Format("\"{0}\" config set cache \"{1}\"", yarn, cache_dir);
+            p.StartInfo.Arguments = string.Format("/c \"{0}\"", args);
+            p.Start();
+            p.WaitForExit();
+            p.Close();
+
+            p = new Process();
+            p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.WorkingDirectory = dir;
+            args = string.Format("\"{0}\" config set scripts-prepend-node-path true", yarn);
+            p.StartInfo.Arguments = string.Format("/c \"{0}\"", args);
+            p.Start();
+            p.WaitForExit();
+            p.Close();
+
+            System.Console.WriteLine("pnpmのインストール中");
+            p = new Process();
+            p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.WorkingDirectory = dir;
+            args = string.Format("\"{0}\" install -g pnpm", npm);
+            p.StartInfo.Arguments = string.Format("/c \"{0}\"", args);
+            p.Start();
+            p.WaitForExit();
+            p.Close();
+
+            cache_dir = System.IO.Path.Combine(_AppDir, "pnpm-cache");
+            if (!System.IO.Directory.Exists(cache_dir))
+            {
+                System.IO.Directory.CreateDirectory(cache_dir);
+            }
+            p = new Process();
+            p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
+            p.StartInfo.UseShellExecute = false;
+            p.StartInfo.CreateNoWindow = true;
+            p.StartInfo.WorkingDirectory = dir;
+            args = string.Format("\"{0}\" config set store-dir \"{1}\"", pnpm, cache_dir);
+            p.StartInfo.Arguments = string.Format("/c \"{0}\"", args);
             p.Start();
             p.WaitForExit();
             p.Close();
