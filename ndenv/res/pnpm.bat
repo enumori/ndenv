@@ -1,14 +1,23 @@
 @ECHO OFF
 SETLOCAL
-SET LOCAL_VER_FILE="%CD%\.node-version"
-SET GLOBAL_VER_FILE="%~dp0.node-version"
-IF EXIST %LOCAL_VER_FILE% (
-    FOR /F "USEBACKQ" %%A IN (%LOCAL_VER_FILE%) DO (
-        CALL "%~dp0\versions\%%A\pnpm.cmd" %*
-    )
-) ELSE (
-    FOR /F "USEBACKQ" %%A IN (%GLOBAL_VER_FILE%) DO (
-        CALL "%~dp0\versions\%%A\pnpm.cmd" %*
-    )
+IF NOT DEFINED LOCAL_NDENV_VER_FILE (
+  SET LOCAL_NDENV_VER_FILE="%CD%\.node-version"
 )
+IF NOT DEFINED GLOBAL_NDENV_VER_FILE (
+  SET GLOBAL_NDENV_VER_FILE="%~dp0.node-version"
+)
+IF EXIST %LOCAL_NDENV_VER_FILE% (
+  FOR /F "USEBACKQ" %%A IN (%LOCAL_NDENV_VER_FILE%) DO (
+    IF NOT DEFINED NDENV_NODE_DIR (
+      SET NDENV_NODE_DIR="%~dp0\versions\%%A\\"
+    )
+  )
+) ELSE (
+  FOR /F "USEBACKQ" %%A IN (%GLOBAL_NDENV_VER_FILE%) DO (
+    IF NOT DEFINED NDENV_NODE_DIR (
+      SET NDENV_NODE_DIR="%~dp0\versions\%%A\\"
+    )
+  )
+)
+CALL "%NDENV_NODE_DIR%pnpm.cmd" %*
 ENDLOCAL
