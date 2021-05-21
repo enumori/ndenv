@@ -12,12 +12,20 @@ IF EXIST %LOCAL_NDENV_VER_FILE% (
       SET NDENV_NODE_DIR="%~dp0\versions\%%A\\"
     )
   )
-) ELSE (
+) ELSE IF EXIST %GLOBAL_NDENV_VER_FILE% (
   FOR /F "USEBACKQ" %%A IN (%GLOBAL_NDENV_VER_FILE%) DO (
     IF NOT DEFINED NDENV_NODE_DIR (
       SET NDENV_NODE_DIR="%~dp0\versions\%%A\\"
     )
   )
+) ELSE (
+  ECHO "ndenv global もしくはndenv local コマンドで使用するNode.Jsのバージョンを指定してください。"
+  EXIT /B
 )
-CALL "%NDENV_NODE_DIR%npx.cmd" %*
+
+IF EXIST "%NDENV_NODE_DIR%npx.cmd" (
+  CALL "%NDENV_NODE_DIR%npx.cmd" %*
+) ELSE (
+  ECHO "npx.cmdがみつかりません。"
+)
 ENDLOCAL
