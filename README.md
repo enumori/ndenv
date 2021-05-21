@@ -2,13 +2,13 @@
 Simple Node.JS version management
 
 # 1. Installation
-レポジトリのソリューションのビルドを行い、[リリースフォルダーに作成されたファイル](https://github.com/enumori/ndenv/releases/download/2021.05.14/ndenv.zip)を任意のフォルダーに配置します。配置したフォルダーにパスを通します。
+レポジトリのソリューションのビルドを行い、[リリースフォルダーに作成されたファイル](https://github.com/enumori/ndenv/releases/download/2021.05.21/ndenv.zip)を任意のフォルダーに配置します。配置したフォルダーにパスを通します。
 
 もしくは、powershellを起動して以下のコマンドを入力します。
 
 ```
 Set-ExecutionPolicy RemoteSigned -scope Process
-Invoke-WebRequest -Uri "https://github.com/enumori/ndenv/releases/download/2021.05.14/ndenv.zip" -OutFile .\ndenv.zip
+Invoke-WebRequest -Uri "https://github.com/enumori/ndenv/releases/download/2021.05.21/ndenv.zip" -OutFile .\ndenv.zip
 Expand-Archive -Path .\ndenv.zip -DestinationPath $env:USERPROFILE
 Remove-Item .\ndenv.zip
 Rename-Item  $env:USERPROFILE\ndenv  $env:USERPROFILE\.ndenv

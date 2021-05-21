@@ -523,6 +523,50 @@ namespace ndenv
             p.WaitForExit();
             p.Close();
 
+            if (System.IO.Directory.Exists(System.IO.Path.Combine(dir, "node_modules", "npm")))
+            {
+                System.Console.WriteLine("npmの更新中");
+                System.IO.Directory.Move(System.IO.Path.Combine(dir, "node_modules", "npm"), System.IO.Path.Combine(dir, "node_modules", "npm2"));
+                if (System.IO.File.Exists(System.IO.Path.Combine(dir, "npm")))
+                {
+                    System.IO.File.Delete(System.IO.Path.Combine(dir, "npm"));
+                }
+                if (System.IO.File.Exists(System.IO.Path.Combine(dir, "npm.cmd")))
+                {
+                    System.IO.File.Delete(System.IO.Path.Combine(dir, "npm.cmd"));
+                }
+                if (System.IO.File.Exists(System.IO.Path.Combine(dir, "npm.ps1")))
+                {
+                    System.IO.File.Delete(System.IO.Path.Combine(dir, "npm.ps1"));
+                }
+                if (System.IO.File.Exists(System.IO.Path.Combine(dir, "npx")))
+                {
+                    System.IO.File.Delete(System.IO.Path.Combine(dir, "npx"));
+                }
+                if (System.IO.File.Exists(System.IO.Path.Combine(dir, "npx.cmd")))
+                {
+                    System.IO.File.Delete(System.IO.Path.Combine(dir, "npx.cmd"));
+                }
+                if (System.IO.File.Exists(System.IO.Path.Combine(dir, "npx.ps1")))
+                {
+                    System.IO.File.Delete(System.IO.Path.Combine(dir, "npx.ps1"));
+                }
+
+                p = new Process();
+                p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
+                p.StartInfo.UseShellExecute = false;
+                p.StartInfo.CreateNoWindow = true;
+                p.StartInfo.WorkingDirectory = dir;
+                args = string.Format("\"{0}\" \"{1}\" install -g  npm", System.IO.Path.Combine(dir, "node.exe"),
+                    System.IO.Path.Combine(dir, "node_modules", "npm2", "bin", "npm-cli.js"));
+                p.StartInfo.Arguments = string.Format("/c \"{0}\"", args);
+                p.Start();
+                p.WaitForExit();
+                p.Close();
+
+                DeleteDirectory(System.IO.Path.Combine(dir, "node_modules", "npm2"));
+            }
+
             System.Console.WriteLine("yarnのインストール中");
             p = new Process();
             p.StartInfo.FileName = System.Environment.GetEnvironmentVariable("ComSpec");
